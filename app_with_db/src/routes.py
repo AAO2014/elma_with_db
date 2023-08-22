@@ -2,7 +2,7 @@ import os
 import random
 
 from flask import Flask, jsonify
-from sqlalchemy import Column, Integer, create_engine, Sequence, Boolean, Text
+from sqlalchemy import Column, Integer, create_engine, Sequence, Boolean, Text, inspect
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 load_dotenv()
@@ -59,19 +59,21 @@ def create_test_records():
     return records
 
 
-# @app.before_request
-# def before_request_func():
-#     Base.metadata.drop_all(engine)
-#     Base.metadata.create_all(engine)
-#     session.bulk_save_objects(create_test_records())
-#     session.commit()
+@app.before_request
+def before_request_func():
+    insp = inspect(engine)
+    if not insp.has_table("test"):
+        Base.metadata.drop_all(engine)
+        Base.metadata.create_all(engine)
+        session.bulk_save_objects(create_test_records())
+        session.commit()
 
 
 def is_email_verified(email):
     return session.query(Test).filter(Test.email == email).filter(Test.verified == True).all()
 
 
-@application.route('/')
+@application.route('/emails')
 def foo():
     return jsonify([i.to_json() for i in session.query(Test).all()])
 
