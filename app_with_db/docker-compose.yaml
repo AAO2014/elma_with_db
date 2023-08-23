@@ -7,6 +7,7 @@ services:
       - '80:80'
     networks:
       - eec
+    restart: always
     depends_on:
       - postgres
 
@@ -20,6 +21,7 @@ services:
       - '5432:5432'
     volumes:
       - ../db/:/var/lib/postgresql/data
+    restart: always
     networks:
       - eec
 
